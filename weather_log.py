@@ -9,9 +9,24 @@ cities = {
     "Quetta": (30.18, 66.98),
 }
 
-for city, (lat, lon) in cities.items():
+
+def get_weather(lat, lon, attempts=3):
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-    weather = requests.get(url, timeout=300).json()["current_weather"]
+    for attempt in range(1, attempts + 1):
+        try:
+            return requests.get(url, timeout=20).json()["current_weather"]
+        except requests.exceptions.RequestException as e:
+            print(f"  attempt {attempt}/{attempts} failed: {e}")
+    return None
+
+
+failed = []
+for city, (lat, lon) in cities.items():
+    weather = get_weather(lat, lon)
+    if weather is None:
+        failed.append(city)
+        continue
+
     payload = {
         "city": city,
         "temperature": weather["temperature"],
@@ -23,3 +38,6 @@ for city, (lat, lon) in cities.items():
 
     if response.text != "OK":
         raise SystemExit("The sheet script said: " + response.text)
+
+if failed:
+    raise SystemExit("Could not fetch weather for: " + ", ".join(failed))
