@@ -11,7 +11,7 @@ cities = {
 
 for city, (lat, lon) in cities.items():
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-    weather = requests.get(url, timeout=30).json()["current_weather"]
+    weather = requests.get(url, timeout=300).json()["current_weather"]
     payload = {
         "city": city,
         "temperature": weather["temperature"],
