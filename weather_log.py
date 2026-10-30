@@ -1,7 +1,7 @@
 import os
 import requests
 
-CITY = {
+cities = {
     "Lahore": (31.55, 74.34),
     "Karachi": (24.86, 67.01),
     "Islamabad": (33.69, 73.05),
@@ -9,6 +9,9 @@ CITY = {
     "Quetta": (30.18, 66.98),
 }
 
+CITY = "Lahore"
+LAT = 31.55
+LON = 74.34
 
 # 1. Get the last 5 full days (past_days=5 also returns today, so we skip today)
 url = (
