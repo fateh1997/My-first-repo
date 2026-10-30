@@ -17,3 +17,5 @@ jobs:
       - run: python weather_log.py
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
