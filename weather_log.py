@@ -9,7 +9,7 @@ cities = {
     "Quetta": (30.18, 66.98),
 }
 
-
+ 
 def log_city(city, lat, lon):
     # 1. Get the last 5 full days (past_days=5 also returns today, so we skip today)
     url = (
