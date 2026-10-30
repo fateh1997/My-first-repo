@@ -61,8 +61,7 @@ def log_city(city, lat, lon):
     analysis = ai.json()["choices"][0]["message"]["content"].strip()
     print(analysis)
 
-    # 4. Send everything to your sheet script
-    payload = {
+    return {
         "city": city,
         "period": days[0]["date"] + " to " + days[-1]["date"],
         "avg_max": avg_max,
@@ -70,21 +69,24 @@ def log_city(city, lat, lon):
         "peak_wind": peak_wind,
         "analysis": analysis,
     }
-    response = requests.post(os.environ["SHEET_URL"], json=payload, timeout=30)
-    print(response.status_code, response.text)
-
-    if response.text != "OK":
-        raise RuntimeError("The sheet script said: " + response.text)
 
 
+results = []
 failed = []
 for city, (lat, lon) in cities.items():
     print(f"\n=== {city} ===")
     try:
-        log_city(city, lat, lon)
+        results.append(log_city(city, lat, lon))
     except Exception as e:
         print(f"{city} failed: {e}")
         failed.append(city)
+
+# 4. Send all cities to the sheet script in one request (one email)
+if results:
+    response = requests.post(os.environ["SHEET_URL"], json={"cities": results}, timeout=60)
+    print(response.status_code, response.text)
+    if response.text != "OK":
+        raise RuntimeError("The sheet script said: " + response.text)
 
 if failed:
     raise SystemExit("Failed cities: " + ", ".join(failed))
