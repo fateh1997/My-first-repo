@@ -1,0 +1,3 @@
+[submodule "crypto_analysis"]
+	path = crypto_analysis
+	url = https://github.com/fateh1997/crypto_analysis.git

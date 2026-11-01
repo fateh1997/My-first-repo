@@ -16,7 +16,7 @@ def log_city(city, lat, lon):
         "https://api.open-meteo.com/v1/forecast"
         f"?latitude={lat}&longitude={lon}"
         "&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max"
-        "&timezone=auto&past_days=14&forecast_days=1"
+        "&timezone=auto&past_days=5&forecast_days=1"
     )
     daily = requests.get(url, timeout=30).json()["daily"]
 
