@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
-      - run: python weather_log.py
+      - run: python weather_log.py agent
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
