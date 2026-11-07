@@ -187,8 +187,9 @@ def run_weather_agent(city, tools, max_steps=MAX_STEPS):
         f"You are a weather agent for {city}. Use your tools to check the weather and "
         "your own recent decisions. "
         "Compare today with the recent days and with your past alerts. "
-        "Send an alert only if something unusual or dangerous needs attention, such as extreme heat, "    # <- edit
-        "strong wind or a big change, and only if the history does not show you already alerted about the same thing. "  # this block to change what counts as alert-worthy
+        "Send an alert only if something unusual or dangerous needs attention — as a rough guide, a high "
+        "above about 40C or wind above about 50 km/h usually qualifies, but use judgment and the recent "
+        "days for context — and only if the history does not show you already alerted about the same thing. "
         "Never invent numbers. If a tool returns an error, do not guess: say the data is unavailable and do not alert. "
         "When you are done, reply with JSON only, with exactly these keys: "
         "advice (one or two sentences for a general reader), "
