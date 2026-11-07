@@ -227,28 +227,33 @@ def run_weather_agent(city, tools, max_steps=MAX_STEPS):
     raise SystemExit("The agent did not finish in time")    # Rule 3: out of steps, stop the job
 
 
-def run_agent_job(dry=False):               # dry=True runs everything, posts nothing
+def run_agent_job(dry=False):
+    failed = []                              # cities that errored, same pattern as run_job()
     for city in CITIES:
         print(f"\n=== {city} ===")
-        tools = {"get_weather": tool_get_weather, "get_history": make_tool_get_history(city)}
-        # ^ what the AI is actually allowed to call; names must match AGENT_TOOLS
-        decision, used = run_weather_agent(city, tools)
-        decision = apply_guardrails(decision)    # always pass raw AI output through guardrails
-        print("ADVICE:", decision["advice"])
-        print("REASONING:", decision["reasoning"])
-        print("ALERT:", decision["send_alert"], decision["alert_message"])
+        try:
+            tools = {"get_weather": tool_get_weather, "get_history": make_tool_get_history(city)}
+            decision, used = run_weather_agent(city, tools)
+            decision = apply_guardrails(decision)
+            print("ADVICE:", decision["advice"])
+            print("REASONING:", decision["reasoning"])
+            print("ALERT:", decision["send_alert"], decision["alert_message"])
 
-        payload = {"type": "agent", "city": city, "tools_used": ", ".join(used), **decision}
-        # "type": "agent" tells Apps Script's doPost which branch to use
-        if dry:
-            print("Dry run. Nothing was sent to the sheet or email.")
-            continue                              # skip posting, move to the next city
-        response = requests.post(os.environ["SHEET_URL"], json=payload, timeout=30)
-        print(response.status_code, response.text)
-        if response.text != "OK":
-            raise RuntimeError("The sheet script said: " + response.text)
-        sleep(2)   # 2 seconds between cities, be gentle with free API limits
+            payload = {"type": "agent", "city": city, "tools_used": ", ".join(used), **decision}
+            if dry:
+                print("Dry run. Nothing was sent to the sheet or email.")
+                continue
+            response = requests.post(os.environ["SHEET_URL"], json=payload, timeout=30)
+            print(response.status_code, response.text)
+            if response.text != "OK":
+                raise RuntimeError("The sheet script said: " + response.text)
+        except Exception as e:               # one city's timeout/error no longer kills the other 4
+            print(f"{city} failed: {e}")
+            failed.append(city)
+        sleep(2)                              # be gentle with the free API limits across 5 cities
 
+    if failed:
+        raise SystemExit("Failed cities: " + ", ".join(failed))
 
 def run_agent(question, city=None):
     # Not in the instructor's template — a convenience for ad hoc questions,
